@@ -1,0 +1,330 @@
+:root {
+  --bg: rgba(8, 7, 6, 0.84);
+  --panel: rgba(10, 10, 10, 0.82);
+  --panel-strong: rgba(5, 5, 5, 0.9);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f2ebdf;
+  --muted: #b8a894;
+  --accent: #e6dac4;
+  --danger: #b84d4d;
+  --success: #6f8f4f;
+  --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--text);
+  background: transparent;
+  overflow: hidden;
+}
+.hidden { display: none !important; }
+#app {
+  position: fixed;
+  inset: 0;
+}
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(143, 91, 33, 0.12), transparent 32%),
+    linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0.72) 100%);
+  backdrop-filter: blur(1px);
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  padding: 32px;
+}
+#craftingView {
+  display: grid;
+  grid-template-columns: 420px 1fr 380px;
+  gap: 28px;
+}
+.left-panel, .right-panel, .blueprint-sidebar {
+  background: linear-gradient(180deg, rgba(12,12,12,0.78), rgba(6,6,6,0.92));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.left-panel {
+  padding: 24px 24px 18px;
+}
+.brand .title {
+  font-size: 4rem;
+  line-height: 0.9;
+  letter-spacing: 0.12rem;
+}
+.brand .subtitle {
+  margin-left: 12px;
+  margin-top: -8px;
+  font-style: italic;
+  font-size: 2rem;
+}
+.category-header h2 {
+  margin: 22px 0 8px;
+  font-size: 2.15rem;
+}
+.category-header p, #recipeDescription, .footer-hint, .blueprint-details, .subtitle {
+  color: var(--muted);
+}
+.category-list {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0;
+}
+.category-pill {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-size: 1.5rem;
+}
+.category-pill.active {
+  background: var(--accent);
+  color: #1b1b1b;
+}
+.recipe-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.recipe-card {
+  min-height: 126px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  padding: 12px;
+  color: var(--text);
+  text-align: left;
+}
+.recipe-card.selected {
+  background: rgba(235, 222, 203, 0.14);
+  border-color: rgba(235, 222, 203, 0.45);
+}
+.recipe-card .recipe-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+.recipe-card .recipe-name {
+  font-size: 1.05rem;
+}
+.recipe-card .recipe-meta {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.center-panel {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.preview-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(85, 55, 28, 0.14), rgba(10,10,10,0.1)),
+    radial-gradient(circle at 50% 80%, rgba(181, 104, 35, 0.18), transparent 22%);
+}
+.preview-icon {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  font-size: 12rem;
+  filter: drop-shadow(0 25px 30px rgba(0,0,0,0.65));
+}
+.preview-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 7%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,212,154,0.16), transparent 70%);
+}
+.craft-progress {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.65);
+  border: 1px solid var(--border);
+}
+.right-panel {
+  padding: 24px;
+}
+.eyebrow {
+  color: #d7c5aa;
+  font-size: 0.9rem;
+  letter-spacing: 0.06rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+#recipeTitle {
+  margin: 0;
+  font-size: 2rem;
+}
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 22px;
+}
+.badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+}
+.badge.state.unlocked { color: #b9d69b; }
+.badge.state.locked { color: #d48f8f; }
+.requirements-title {
+  margin: 18px 0 12px;
+  font-size: 1rem;
+  color: #dfd4c0;
+}
+.requirements-list, .skill-list {
+  display: grid;
+  gap: 10px;
+}
+.requirement, .skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.requirement .value.ok { color: #b9d69b; }
+.requirement .value.bad { color: #d48f8f; }
+.amount-row {
+  margin: 24px 0 18px;
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  gap: 10px;
+}
+.amount-btn, .craft-button, .skill-upgrade {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+.amount-btn {
+  border-radius: 14px;
+  font-size: 2rem;
+}
+.amount-value {
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  font-size: 1.2rem;
+}
+.craft-button {
+  width: 100%;
+  min-height: 74px;
+  border-radius: 18px;
+  font-size: 2rem;
+  letter-spacing: 0.05rem;
+  background: linear-gradient(180deg, #f0e7da, #d8ccb6);
+  color: #1d1a16;
+}
+.craft-button.secondary {
+  margin-top: 16px;
+  min-height: 62px;
+  font-size: 1.1rem;
+}
+.craft-button.locked {
+  background: linear-gradient(180deg, #5b5956, #464440);
+  color: #d7d0c5;
+}
+.footer-hint {
+  margin-top: 18px;
+  font-size: 0.85rem;
+}
+#blueprintView {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.blueprint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 22px;
+  background: linear-gradient(180deg, rgba(12,12,12,0.78), rgba(6,6,6,0.92));
+  border: 1px solid var(--border);
+}
+.title.small { font-size: 2rem; }
+.blueprint-stats {
+  display: flex;
+  gap: 12px;
+}
+.blueprint-stats span {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+}
+.blueprint-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+}
+.blueprint-canvas {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(12,12,12,0.78), rgba(6,6,6,0.92)),
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: auto, 28px 28px, 28px 28px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.blueprint-node {
+  position: absolute;
+  width: 220px;
+  min-height: 136px;
+  transform: translate(-50%, -50%);
+  background: rgba(24,24,24,0.95);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.blueprint-node.selected {
+  border-color: rgba(237, 224, 195, 0.7);
+}
+.blueprint-node.locked { opacity: 0.52; }
+.blueprint-node.unlocked { border-color: rgba(160, 200, 120, 0.55); }
+.node-title { font-size: 1.1rem; margin-bottom: 6px; }
+.node-group { color: var(--muted); font-size: 0.88rem; }
+.node-cost {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  font-size: 0.82rem;
+}
+.connector {
+  position: absolute;
+  height: 2px;
+  background: rgba(255,255,255,0.18);
+  transform-origin: left center;
+}
+.blueprint-sidebar {
+  padding: 20px;
+}
+.top-gap { margin-top: 20px; }
+.skill-row button {
+  padding: 8px 10px;
+  border-radius: 10px;
+}
