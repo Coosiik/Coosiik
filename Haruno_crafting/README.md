@@ -34,6 +34,7 @@ Resource do RedM/VORP z rozbudowanym craftingiem i filmowym NUI inspirowanym men
 5. Dopiero odblokowany blueprint pozwala craftowac dany item.
 
 ## Co trzeba jeszcze podpiac po twojej stronie
+- prawdziwa nazwe inventory resource w `Config.InventoryApiResource` (np. `vorp_inventory` albo `vorp_inventoryApi`),
 - prawdziwe itemy z twojego inventory (`iron`, `copper`, `hardwood`, itd.),
 - docelowe nazwy itemow/rewardow dla twojego serwera,
 - opcjonalnie podmiane ikon emoji na obrazy DDS/PNG w NUI,

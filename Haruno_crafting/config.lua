@@ -2,7 +2,8 @@ Config = {}
 
 Config.Debug = false
 Config.FrameworkResource = 'vorp_core'
-Config.InventoryApiResource = 'vorp_inventoryApi'
+Config.InventoryApiResource = 'vorp_inventory' -- Ustaw na nazwe inventory resource u ciebie, np. 'vorp_inventory' albo 'vorp_inventoryApi'
+Config.InventoryFallbackResources = { 'vorp_inventory', 'vorp_inventoryApi' }
 Config.DefaultSkillPointsPerLevel = 1
 Config.CraftingDurationMs = 5000
 Config.ProgressTickMs = 250

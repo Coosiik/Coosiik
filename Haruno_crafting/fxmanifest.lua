@@ -27,6 +27,5 @@ server_scripts {
 }
 
 dependencies {
-    'vorp_core',
-    'vorp_inventoryApi'
+    'vorp_core'
 }

@@ -1,8 +1,53 @@
 local Core = exports.vorp_core:GetCore()
-local InventoryApi = exports.vorp_inventoryApi
 
 local RESOURCE_NAME = GetCurrentResourceName()
 local PLAYER_DATA = {}
+local INVENTORY_RESOURCE = nil
+
+local function resolveInventoryResource()
+    local candidates = {}
+    if Config and Config.InventoryApiResource then
+        candidates[#candidates + 1] = Config.InventoryApiResource
+    end
+
+    for _, resourceName in ipairs((Config and Config.InventoryFallbackResources) or {}) do
+        local alreadyAdded = false
+        for _, existing in ipairs(candidates) do
+            if existing == resourceName then
+                alreadyAdded = true
+                break
+            end
+        end
+
+        if not alreadyAdded then
+            candidates[#candidates + 1] = resourceName
+        end
+    end
+
+    for _, resourceName in ipairs(candidates) do
+        if GetResourceState(resourceName) == 'started' then
+            return resourceName
+        end
+    end
+
+    return nil
+end
+
+local function inventoryCall(methodName, ...)
+    if not INVENTORY_RESOURCE then
+        local tried = {}
+        if Config and Config.InventoryApiResource then
+            tried[#tried + 1] = Config.InventoryApiResource
+        end
+        for _, resourceName in ipairs((Config and Config.InventoryFallbackResources) or {}) do
+            tried[#tried + 1] = resourceName
+        end
+
+        error(('Inventory resource not found. Ustaw Config.InventoryApiResource. Tried: %s'):format(table.concat(tried, ', ')))
+    end
+
+    return exports[INVENTORY_RESOURCE][methodName](...)
+end
 
 local function debugPrint(...)
     if Config.Debug then
@@ -56,23 +101,23 @@ end
 
 local function inventoryHasItem(source, itemName, amount)
     amount = amount or 1
-    local count = InventoryApi:getItemCount(source, nil, itemName)
+    local count = inventoryCall('getItemCount', source, nil, itemName)
     return (count or 0) >= amount
 end
 
 local function inventoryCount(source, itemName)
-    return InventoryApi:getItemCount(source, nil, itemName) or 0
+    return inventoryCall('getItemCount', source, nil, itemName) or 0
 end
 
 local function removeIngredients(source, ingredients)
     for _, ingredient in ipairs(ingredients) do
-        InventoryApi:subItem(source, ingredient.item, ingredient.count)
+        inventoryCall('subItem', source, ingredient.item, ingredient.count)
     end
 end
 
 local function giveRewards(source, rewards)
     for _, reward in ipairs(rewards) do
-        InventoryApi:addItem(source, reward.item, reward.count)
+        inventoryCall('addItem', source, reward.item, reward.count)
     end
 end
 
@@ -428,6 +473,22 @@ RegisterNetEvent('coosiik_crafting:server:craftItem', function(recipeKey, amount
 end)
 
 AddEventHandler('onResourceStart', function(resourceName)
-    if resourceName ~= RESOURCE_NAME then return end
-    debugPrint('Crafting resource started.')
+    if resourceName == RESOURCE_NAME then
+        INVENTORY_RESOURCE = resolveInventoryResource()
+        if not INVENTORY_RESOURCE then
+            print(('^1[%s]^7 Nie znaleziono inventory resource. Ustaw Config.InventoryApiResource lub uruchom jeden z: %s'):format(RESOURCE_NAME, table.concat(Config.InventoryFallbackResources or {}, ', ')))
+            return
+        end
+
+        print(('^2[%s]^7 Inventory hooked into: %s'):format(RESOURCE_NAME, INVENTORY_RESOURCE))
+        debugPrint('Crafting resource started.')
+        return
+    end
+
+    if resourceName == Config.InventoryApiResource or resourceName == 'vorp_inventory' or resourceName == 'vorp_inventoryApi' then
+        INVENTORY_RESOURCE = resolveInventoryResource()
+        if INVENTORY_RESOURCE then
+            print(('^2[%s]^7 Inventory detected after start: %s'):format(RESOURCE_NAME, INVENTORY_RESOURCE))
+        end
+    end
 end)
