@@ -112,7 +112,7 @@ CreateThread(function()
                 if not nuiOpen then
                     local prompt = CreateVarString(10, 'LITERAL_STRING', ('[J] %s | [B] Blueprinty'):format(station.label))
                     SetTextScale(0.35, 0.35)
-                    SetTextColour(255, 255, 255, 215)
+                    SetTextColor(255, 255, 255, 215)
                     SetTextCentre(true)
                     DisplayText(prompt, 0.5, 0.92)
                 end
