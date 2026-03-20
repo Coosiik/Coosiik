@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coosiik Crafting</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app" class="hidden">
+    <div class="backdrop"></div>
+    <div id="craftingView" class="screen hidden">
+      <aside class="left-panel">
+        <div class="brand">
+          <div class="title">CRAFTING</div>
+          <div class="subtitle" id="stationTheme">Weapons</div>
+        </div>
+        <div class="category-header">
+          <h2 id="categoryTitle"></h2>
+          <p id="categoryDescription"></p>
+        </div>
+        <div id="categoryList" class="category-list"></div>
+        <div id="recipeList" class="recipe-list"></div>
+        <div class="footer-hint">ESC zamyka • B otwiera blueprinty • kliknij recepture aby wybrac</div>
+      </aside>
+
+      <main class="center-panel">
+        <div class="preview-stage">
+          <div id="previewIcon" class="preview-icon">🔫</div>
+          <div class="preview-glow"></div>
+          <div id="craftingProgress" class="craft-progress hidden">Crafting...</div>
+        </div>
+      </main>
+
+      <aside class="right-panel">
+        <div class="detail-card">
+          <div class="eyebrow" id="stationLabel"></div>
+          <h3 id="recipeTitle"></h3>
+          <p id="recipeDescription"></p>
+          <div class="meta-row">
+            <span id="recipeCategoryBadge" class="badge"></span>
+            <span id="recipeDuration" class="badge"></span>
+            <span id="recipeState" class="badge state"></span>
+          </div>
+          <div class="requirements-title">Requirement Items</div>
+          <div id="ingredientsList" class="requirements-list"></div>
+          <div class="skill-section">
+            <div class="requirements-title">Skill Tree</div>
+            <div id="skillList" class="skill-list"></div>
+          </div>
+          <div class="amount-row">
+            <button data-amount="down" class="amount-btn">−</button>
+            <div id="craftAmount" class="amount-value">1x</div>
+            <button data-amount="up" class="amount-btn">+</button>
+          </div>
+          <button id="craftButton" class="craft-button">CRAFT</button>
+        </div>
+      </aside>
+    </div>
+
+    <div id="blueprintView" class="screen hidden">
+      <div class="blueprint-header">
+        <div>
+          <div class="title small">BLUEPRINTS</div>
+          <div class="subtitle">Research items using blueprint points</div>
+        </div>
+        <div class="blueprint-stats">
+          <span id="blueprintPoints"></span>
+          <span id="skillPoints"></span>
+        </div>
+      </div>
+      <div class="blueprint-body">
+        <div id="blueprintCanvas" class="blueprint-canvas"></div>
+        <aside class="blueprint-sidebar">
+          <div class="requirements-title">Skill upgrades</div>
+          <div id="blueprintSkillList" class="skill-list"></div>
+          <div class="requirements-title top-gap">Node details</div>
+          <div id="blueprintDetails" class="blueprint-details">Kliknij node aby zobaczyc szczegoly.</div>
+          <button id="unlockBlueprintBtn" class="craft-button secondary">UNLOCK RESEARCH</button>
+        </aside>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
