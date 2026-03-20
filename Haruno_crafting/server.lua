@@ -49,6 +49,16 @@ local function inventoryCall(methodName, ...)
     return exports[INVENTORY_RESOURCE][methodName](...)
 end
 
+
+local function normalizeSource(playerSource)
+    local normalized = tonumber(playerSource)
+    if not normalized or normalized <= 0 then
+        return nil
+    end
+
+    return normalized
+end
+
 local function debugPrint(...)
     if Config.Debug then
         print(('^3[%s]^7'):format(RESOURCE_NAME), ...)
@@ -100,24 +110,36 @@ local function getPlayerState(source)
 end
 
 local function inventoryHasItem(source, itemName, amount)
+    local playerSource = normalizeSource(source)
+    if not playerSource then return false end
+
     amount = amount or 1
-    local count = inventoryCall('getItemCount', source, nil, itemName)
+    local count = inventoryCall('getItemCount', playerSource, nil, itemName)
     return (count or 0) >= amount
 end
 
 local function inventoryCount(source, itemName)
-    return inventoryCall('getItemCount', source, nil, itemName) or 0
+    local playerSource = normalizeSource(source)
+    if not playerSource then return 0 end
+
+    return inventoryCall('getItemCount', playerSource, nil, itemName) or 0
 end
 
 local function removeIngredients(source, ingredients)
+    local playerSource = normalizeSource(source)
+    if not playerSource then return end
+
     for _, ingredient in ipairs(ingredients) do
-        inventoryCall('subItem', source, ingredient.item, ingredient.count)
+        inventoryCall('subItem', playerSource, ingredient.item, ingredient.count)
     end
 end
 
 local function giveRewards(source, rewards)
+    local playerSource = normalizeSource(source)
+    if not playerSource then return end
+
     for _, reward in ipairs(rewards) do
-        inventoryCall('addItem', source, reward.item, reward.count)
+        inventoryCall('addItem', playerSource, reward.item, reward.count)
     end
 end
 
@@ -318,12 +340,13 @@ local function buildBlueprintPayload(playerState)
 end
 
 local function playerPayload(source, state)
-    local playerState = state or getPlayerState(source)
+    local playerSource = normalizeSource(source)
+    local playerState = state or getPlayerState(playerSource)
     if type(playerState) ~= 'table' then return nil end
 
     local recipes = {}
     for recipeKey, recipe in pairs(Config.Recipes) do
-        recipes[recipeKey] = buildRecipePayload(source, playerState, recipeKey, recipe)
+        recipes[recipeKey] = buildRecipePayload(playerSource, playerState, recipeKey, recipe)
     end
 
     return {
@@ -346,44 +369,50 @@ local function playerPayload(source, state)
 end
 
 RegisterNetEvent('coosiik_crafting:server:requestData', function()
-    local source = source
-    local state = getPlayerState(source)
+    local playerSource = normalizeSource(source)
+    if not playerSource then return end
+
+    local state = getPlayerState(playerSource)
     if not state then return end
 
-    TriggerClientEvent('coosiik_crafting:client:receiveData', source, playerPayload(source, state))
+    TriggerClientEvent('coosiik_crafting:client:receiveData', playerSource, playerPayload(playerSource, state))
 end)
 
 RegisterNetEvent('coosiik_crafting:server:spendPoint', function(skillName)
-    local source = source
-    local state = getPlayerState(source)
+    local playerSource = normalizeSource(source)
+    if not playerSource then return end
+
+    local state = getPlayerState(playerSource)
     local skillConfig = Config.SkillTree[skillName]
 
     if not state or not skillConfig then return end
     if state.unspentPoints <= 0 then
-        TriggerClientEvent('vorp:TipBottom', source, 'Brak wolnych punktow umiejetnosci.', 4000)
+        TriggerClientEvent('vorp:TipBottom', playerSource, 'Brak wolnych punktow umiejetnosci.', 4000)
         return
     end
 
     local current = state.skills[skillName] or 0
     if current >= (skillConfig.maxLevel or 5) then
-        TriggerClientEvent('vorp:TipBottom', source, 'Ta umiejetnosc ma juz maksymalny poziom.', 4000)
+        TriggerClientEvent('vorp:TipBottom', playerSource, 'Ta umiejetnosc ma juz maksymalny poziom.', 4000)
         return
     end
 
     state.skills[skillName] = current + 1
     state.unspentPoints = state.unspentPoints - 1
-    TriggerClientEvent('vorp:TipBottom', source, ('Zwiekszono poziom %s do %s'):format(skillConfig.label, state.skills[skillName]), 4000)
-    TriggerClientEvent('coosiik_crafting:client:receiveData', source, playerPayload(source, state))
+    TriggerClientEvent('vorp:TipBottom', playerSource, ('Zwiekszono poziom %s do %s'):format(skillConfig.label, state.skills[skillName]), 4000)
+    TriggerClientEvent('coosiik_crafting:client:receiveData', playerSource, playerPayload(playerSource, state))
 end)
 
 RegisterNetEvent('coosiik_crafting:server:unlockBlueprintNode', function(nodeKey)
-    local source = source
-    local state = getPlayerState(source)
+    local playerSource = normalizeSource(source)
+    if not playerSource then return end
+
+    local state = getPlayerState(playerSource)
     local node = getBlueprintNode(nodeKey)
     if not state or not node then return end
 
     if (state.blueprintPoints or 0) < (node.cost or Config.BlueprintPointCost) then
-        TriggerClientEvent('vorp:TipBottom', source, 'Brak punktow blueprintow.', 4000)
+        TriggerClientEvent('vorp:TipBottom', playerSource, 'Brak punktow blueprintow.', 4000)
         return
     end
 
@@ -399,7 +428,7 @@ RegisterNetEvent('coosiik_crafting:server:unlockBlueprintNode', function(nodeKey
                 end
             end
             if not unlocked then
-                TriggerClientEvent('vorp:TipBottom', source, 'Musisz odblokowac poprzedni blueprint.', 4000)
+                TriggerClientEvent('vorp:TipBottom', playerSource, 'Musisz odblokowac poprzedni blueprint.', 4000)
                 return
             end
         end
@@ -407,28 +436,30 @@ RegisterNetEvent('coosiik_crafting:server:unlockBlueprintNode', function(nodeKey
 
     addBlueprintsForNode(state, node)
     state.blueprintPoints = state.blueprintPoints - (node.cost or Config.BlueprintPointCost)
-    TriggerClientEvent('vorp:TipBottom', source, ('Odblokowano research: %s'):format(node.label), 4000)
-    TriggerClientEvent('coosiik_crafting:client:receiveData', source, playerPayload(source, state))
+    TriggerClientEvent('vorp:TipBottom', playerSource, ('Odblokowano research: %s'):format(node.label), 4000)
+    TriggerClientEvent('coosiik_crafting:client:receiveData', playerSource, playerPayload(playerSource, state))
 end)
 
 RegisterNetEvent('coosiik_crafting:server:craftItem', function(recipeKey, amount)
-    local source = source
+    local playerSource = normalizeSource(source)
+    if not playerSource then return end
+
     local recipe = Config.Recipes[recipeKey]
     local craftAmount = math.max(1, math.min(tonumber(amount) or 1, 10))
     if not recipe then return end
 
-    local state = getPlayerState(source)
+    local state = getPlayerState(playerSource)
     if not state then return end
 
     if recipe.blueprint and not state.blueprints[recipe.blueprint] then
-        TriggerClientEvent('vorp:TipBottom', source, 'Research required. Otworz drzewko blueprintow.', 4000)
+        TriggerClientEvent('vorp:TipBottom', playerSource, 'Research required. Otworz drzewko blueprintow.', 4000)
         return
     end
 
     local skillsOk, skillName, requiredLevel, currentLevel = requirementsMet(state, recipe)
     if not skillsOk then
         local skillLabel = Config.SkillTree[skillName] and Config.SkillTree[skillName].label or skillName
-        TriggerClientEvent('vorp:TipBottom', source, ('Potrzebujesz %s %s (masz %s).'):format(skillLabel, requiredLevel, currentLevel), 4000)
+        TriggerClientEvent('vorp:TipBottom', playerSource, ('Potrzebujesz %s %s (masz %s).'):format(skillLabel, requiredLevel, currentLevel), 4000)
         return
     end
 
@@ -457,19 +488,19 @@ RegisterNetEvent('coosiik_crafting:server:craftItem', function(recipeKey, amount
         skillRequirements = recipe.skillRequirements,
     }
 
-    local ingredientsOk, ingredientName, ingredientCount = ingredientsMet(source, scaledRecipe)
+    local ingredientsOk, ingredientName, ingredientCount = ingredientsMet(playerSource, scaledRecipe)
     if not ingredientsOk then
-        TriggerClientEvent('vorp:TipBottom', source, ('Brakuje skladnika: %s x%s'):format(ingredientName, ingredientCount), 4000)
+        TriggerClientEvent('vorp:TipBottom', playerSource, ('Brakuje skladnika: %s x%s'):format(ingredientName, ingredientCount), 4000)
         return
     end
 
-    removeIngredients(source, scaledIngredients)
-    giveRewards(source, scaledRewards)
-    addXpAndPoints(source, state, scaledRecipe)
+    removeIngredients(playerSource, scaledIngredients)
+    giveRewards(playerSource, scaledRewards)
+    addXpAndPoints(playerSource, state, scaledRecipe)
 
-    TriggerClientEvent('vorp:TipBottom', source, ('Stworzono: %s x%s'):format(recipe.label, craftAmount), 4000)
-    TriggerClientEvent('coosiik_crafting:client:receiveData', source, playerPayload(source, state))
-    debugPrint(('Crafted recipe %s x%s for %s'):format(recipeKey, craftAmount, source))
+    TriggerClientEvent('vorp:TipBottom', playerSource, ('Stworzono: %s x%s'):format(recipe.label, craftAmount), 4000)
+    TriggerClientEvent('coosiik_crafting:client:receiveData', playerSource, playerPayload(playerSource, state))
+    debugPrint(('Crafted recipe %s x%s for %s'):format(recipeKey, craftAmount, playerSource))
 end)
 
 AddEventHandler('onResourceStart', function(resourceName)
